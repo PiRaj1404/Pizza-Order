@@ -10,6 +10,15 @@ enum class PizzaSize
     LARGE
 };
 
+enum class PizzaName {
+    Margherita,
+    CustomizedMargherita,
+    Paneer,
+    CustomizedPaneer,
+    Chicken,
+    CustomizedChicken
+};
+
 enum class Toppings
 {
     CHEESE,
@@ -25,19 +34,48 @@ enum class Toppings
 
 class Pizza
 {
-protected:
-    PizzaSize _size;
+private:
     double _basePrice;
+
+string displayPizzaName(){
+        switch (_pizzaName)
+        {
+        case PizzaName::Margherita :
+            return "Margharita Pizza";
+        
+        case PizzaName::Paneer :
+            return "Paneer Pizza";
+        
+        case PizzaName::Chicken :
+            return "Chicken Pizza";
+
+        case PizzaName::CustomizedMargherita :
+            return "Customized Margharita Pizza";
+
+        case PizzaName::CustomizedPaneer :
+            return "Customized Paneer Pizza";
+
+        case PizzaName::CustomizedChicken :
+            return "Customized Chicken Pizza";
+        
+        default:
+            return "";
+        }
+
+    }
+
+string getPizzaSize(){
+        return _pizzaSize;
+    }
+
+    
+protected:
+    PizzaName _pizzaName;
+    PizzaSize _size;
+    
     string _pizzaSize;
 
-public:
-    Pizza(PizzaSize size) : _size(size)
-    {
-
-        setPizzaSize();
-        setPizzaPrice();
-    };
-
+    
     void setPizzaPrice()
     {
         switch (_size)
@@ -65,14 +103,17 @@ public:
         {
         case PizzaSize::SMALL:
             _pizzaSize = "Small";
+            _basePrice = 200;
             break;
 
         case PizzaSize::MEDIUM:
             _pizzaSize = "Medium";
+            _basePrice = 300;
             break;
 
         case PizzaSize::LARGE:
             _pizzaSize = "Large";
+            _basePrice = 500;
             break;
 
         default:
@@ -134,8 +175,37 @@ public:
         }
     }
 
+    
+public:
+    Pizza(PizzaName name, PizzaSize size) : _size(size)
+    {
+
+        _pizzaName = name;
+        setPizzaSize();
+        setPizzaPrice();
+    };
+
+
+    
+    void displayOrder() 
+    {
+
+        cout << "Pizza Name :: " << displayPizzaName() << "\n";
+        cout << "Pizza Size :: " << getPizzaSize() << "\n";
+        displayPizzaOrder();
+        cout<< "Total Order Value :: "<<calculateOrderPrice()<<"\n";
+    }
+
+    double calculateOrderPrice(){
+        double amount = 0;
+        amount += _basePrice;
+        amount += calculatePrice();
+        return amount;
+
+    }
+
     virtual double calculatePrice() = 0;
-    virtual void displayPizza() = 0;
+    virtual void displayPizzaOrder() = 0;
     virtual void addTopping(const vector<Toppings> &toppings = {}) = 0;
 
     virtual ~Pizza() = default;
@@ -148,7 +218,7 @@ protected:
     vector<Toppings> _toppings;
 
 public:
-    MargheritaPizza(PizzaSize size) : Pizza(size)
+    MargheritaPizza(PizzaName name, PizzaSize size) : Pizza(name, size)
     {
 
         addTopping(_toppings);
@@ -183,8 +253,6 @@ public:
     double calculatePrice() override
     {
         double amount = 0;
-        amount += _basePrice;
-
         amount += countToppings();
         return amount;
     }
@@ -206,15 +274,9 @@ public:
     }
 
 
-    string getMargheritaPizzaName()
-    {
-        return "Margherita Pizza";
-    }
+    
 
-    string getMargheritaPizzaSize()
-    {
-        return _pizzaSize;
-    }
+    
 
     void getMargheritaPizzaToppings(const vector<Toppings> &toppings = vector<Toppings>())
     {
@@ -226,14 +288,14 @@ public:
         }
     }
 
-    void displayPizza() override
+    void displayPizzaOrder() override
     {
-        cout << "Pizza Name :: " << getMargheritaPizzaName() << "\n";
-        cout << "Pizza Size :: " << getMargheritaPizzaSize() << "\n";
+        
+
         cout << "Pizza Toppings :: ";
         getMargheritaPizzaToppings();
         cout << "\n";
-        cout << "Total amount :: " << calculatePrice();
+        
     }
 };
 
@@ -245,7 +307,7 @@ private:
     PizzaSize _size;
 
 public:
-    CustomizedMargheritaPizza(PizzaSize size) : MargheritaPizza(size)
+    CustomizedMargheritaPizza(PizzaName name, PizzaSize size) : MargheritaPizza(name, size)
     {
         _toppings = MargheritaPizza::_toppings;
         _size = size;
@@ -271,14 +333,12 @@ public:
         return amount;
     }
 
-    void displayPizza()
+    void displayPizzaOrder() override
     {
-        cout << "Pizza Name :: Customized " << MargheritaPizza::getMargheritaPizzaName() << "\n";
-        cout << "Pizza Size :: " << _pizzaSize << "\n";
         cout << "Pizza Toppings :: ";
         MargheritaPizza::getMargheritaPizzaToppings(_toppings);
         cout << "\n";
-        cout << "Total amount :: " << calculatePrice() << "\n";
+        
     }
 };
 
@@ -289,7 +349,7 @@ protected:
     vector<Toppings> _toppings;
 
 public:
-    PaneerPizza(PizzaSize size) : Pizza(size)
+    PaneerPizza(PizzaName name, PizzaSize size) : Pizza(name,size)
     {
 
         addTopping(_toppings);
@@ -325,21 +385,15 @@ public:
     double calculatePrice() override
     {
         double amount = 0;
-        amount += _basePrice;
+        
 
         amount += countToppings();
         return amount;
     }
 
-    string getPaneerPizzaName()
-    {
-        return "Paneer Pizza";
-    }
+    
 
-    string getPaneerPizzaSize()
-    {
-        return _pizzaSize;
-    }
+    
 
     void getPaneerPizzaToppings(const vector<Toppings> &toppings = {})
     {
@@ -361,14 +415,13 @@ public:
     }
 
 
-    void displayPizza() override
+    void displayPizzaOrder() override
     {
-        cout << "Pizza Name :: " << getPaneerPizzaName() << "\n";
-        cout << "Pizza Size :: " << getPaneerPizzaSize() << "\n";
+        
         cout << "Pizza Toppings :: ";
         getPaneerPizzaToppings();
         cout << "\n";
-        cout << "Total amount :: " << calculatePrice() << "\n";
+        
     }
 };
 
@@ -379,7 +432,7 @@ private:
     PizzaSize _size;
 
 public:
-    CustomizedPaneerPizza(PizzaSize size) : PaneerPizza(size)
+    CustomizedPaneerPizza(PizzaName name, PizzaSize size) : PaneerPizza(name, size)
     {
         _toppings = PaneerPizza::_toppings;
         _size = size;
@@ -405,28 +458,25 @@ public:
         return amount;
     }
 
-    void displayPizza()
+    void displayPizzaOrder() override
     {
-        cout << "Pizza Name :: Customized " << PaneerPizza::getPaneerPizzaName() << "\n";
-        cout << "Pizza Size :: " << _pizzaSize << "\n";
+        
         cout << "Pizza Toppings :: ";
         PaneerPizza::getPaneerPizzaToppings(_toppings);
         cout << "\n";
-        cout << "Total amount :: " << calculatePrice() << "\n";
+        
     }
 };
 
 
 class ChickenPizza : public Pizza
 {
-private:
-    string _name;
 
 protected:
     vector<Toppings> _toppings;
 
 public:
-    ChickenPizza(PizzaSize size) : Pizza(size)
+    ChickenPizza(PizzaName name, PizzaSize size) : Pizza( name, size)
     {
         addTopping();
     }
@@ -461,21 +511,15 @@ public:
     double calculatePrice() override
     {
         double amount = 0;
-        amount += _basePrice;
+        
 
         amount += countToppings();
         return amount;
     }
 
-    string getChickenPizzaName()
-    {
-        return "Chicken Pizza";
-    }
+    
 
-    string getChickenPizzaSize()
-    {
-        return _pizzaSize;
-    }
+    
 
     void getChickenPizzaToppings(const vector<Toppings> &toppings = {})
     {
@@ -496,15 +540,14 @@ public:
         }
     }
 
-    void displayPizza() override
+    void displayPizzaOrder() override
     {
 
-        cout << "Pizza Name :: " << getChickenPizzaName() << "\n";
-        cout << "Pizza Size :: " << getChickenPizzaSize() << "\n";
+        
         cout << "Pizza Toppings :: ";
         getChickenPizzaToppings();
         cout << "\n";
-        cout << "Total amount :: " << calculatePrice() << "\n";
+        
     }
 };
 
@@ -512,13 +555,13 @@ class CustomizedChickenPizza : public ChickenPizza
 {
 private:
     vector<Toppings> _toppings;
-    PizzaSize _size;
+    
 
 public:
-    CustomizedChickenPizza(PizzaSize size) : ChickenPizza(size)
+    CustomizedChickenPizza(PizzaName name, PizzaSize size) : ChickenPizza(name, size)
     {
         _toppings = ChickenPizza::_toppings;
-        _size = size;
+        
     }
 
     void addTopping(const vector<Toppings> &topping) override
@@ -541,47 +584,48 @@ public:
         return amount;
     }
 
-    void displayPizza()
+    void displayPizzaOrder()
     {
-        cout << "Pizza Name :: Customized " << ChickenPizza::getChickenPizzaName() << "\n";
-        cout << "Pizza Size :: " << _pizzaSize << "\n";
+        
         cout << "Pizza Toppings :: ";
         ChickenPizza::getChickenPizzaToppings(_toppings);
         cout << "\n";
-        cout << "Total amount :: " << calculatePrice() << "\n";
+        
     }
 };
 
 int main()
 {
 
-    Pizza *pizza1 = new CustomizedPaneerPizza(PizzaSize::MEDIUM);
+    Pizza *pizza1 = new PaneerPizza(PizzaName::Paneer, PizzaSize::MEDIUM);
 
     
-    pizza1->addTopping({Toppings::BLACK_OLIVES, Toppings::TOMATO});
-    pizza1->displayPizza();
+    
+    pizza1->displayOrder();
 
     cout << "\n";
 
-    Pizza *pizza2 = new CustomizedChickenPizza(PizzaSize::MEDIUM);
 
     
-    pizza2->addTopping({Toppings::ONION, Toppings::CHEESE});
-    pizza2->displayPizza();
+
+    Pizza *pizza2 = new ChickenPizza(PizzaName::Chicken, PizzaSize::LARGE);
+
+    
+    pizza2->displayOrder();
 
     cout << "\n";
 
-    Pizza *pizza3 = new CustomizedMargheritaPizza(PizzaSize::LARGE);
+    Pizza *pizza3 = new MargheritaPizza(PizzaName::Margherita, PizzaSize::SMALL);
+
     
-    pizza3->addTopping({Toppings::ONION, Toppings::TOMATO});
-    pizza3->displayPizza();
+    
+    pizza3->displayOrder();
 
     cout << "\n";
 
-    Pizza *pizza4 = new MargheritaPizza(PizzaSize::LARGE);
-    pizza3->calculatePrice();
-    pizza3->addTopping();
-    pizza3->displayPizza();
+    
+
+    
 
 
 
@@ -589,5 +633,4 @@ int main()
     delete pizza1;
     delete pizza2;
     delete pizza3;
-    delete pizza4;
 }
